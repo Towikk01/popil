@@ -3,6 +3,7 @@ import 'package:popil/core/theme/app_colors.dart';
 import 'package:popil/core/bloc/cart_bloc/cart_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
 class CartItemListTile extends StatelessWidget {
   final CartItem item;
 
@@ -35,38 +36,49 @@ class CartItemListTile extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
         ),
         trailing: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: IconButton(
-                    icon: const Icon(Icons.remove_circle, color: Colors.red),
-                    onPressed: () {
-                      context.read<CartBloc>().add(RemoveItemFromCart(item));
-                    },
+                GestureDetector(
+                  onTap: () {
+                    context.read<CartBloc>().add(RemoveItemFromCart(item));
+                  },
+                  child: Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Icon(Icons.remove, color: Colors.white),
                   ),
                 ),
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: IconButton(
-                    icon: const Icon(Icons.add_circle, color: Colors.green),
-                    onPressed: () {
-                      context.read<CartBloc>().add(AddItemToCart(item));
-                    },
+                const SizedBox(width: 10),
+                Text(
+                  '${item.quantity}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () {
+                    context.read<CartBloc>().add(AddItemToCart(item));
+                  },
+                  child: Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'x${item.quantity}',
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
           ],
         ),
       ),

@@ -5,48 +5,49 @@ part 'cart_event.dart';
 part 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
-  List<CartItem> cartItems = [];
+  CartBloc() : super(CartSuccess(items: const [])) {
+    on<AddItemToCart>(_addItemToCart);
+    on<RemoveItemFromCart>(_removeItemFromCart);
+  }
 
-  CartBloc() : super(CartSuccess(items: [])) {
-    on<AddItemToCart>((event, emit) {
-      final existingItem = cartItems.firstWhere(
-        (item) => item.title == event.item.title,
-        orElse: () => CartItem(
-          imageUrl: event.item.imageUrl,
-          title: event.item.title,
-          price: event.item.price,
-          quantity: 0,
-        ),
-      );
+  void _addItemToCart(AddItemToCart event, Emitter<CartState> emit) {
+    if (state is CartSuccess) {
+      final List<CartItem> updatedItems =
+          List.from((state as CartSuccess).items);
+      final index = updatedItems.indexWhere((item) => item.id == event.item.id);
 
-      if (existingItem.quantity > 0) {
-        existingItem.quantity++;
+      if (index >= 0) {
+        // Increment quantity of existing item
+        updatedItems[index] = updatedItems[index].copyWith(
+          quantity: updatedItems[index].quantity + 1,
+        );
       } else {
-        event.item.quantity = 1;
-        cartItems.add(event.item);
+        // Add new item
+        updatedItems.add(event.item.copyWith(quantity: 1));
       }
 
-      emit(CartSuccess(items: List.from(cartItems))); // Emit updated cart list
-    });
+      emit(CartSuccess(items: updatedItems));
+    }
+  }
 
-    on<RemoveItemFromCart>((event, emit) {
-      final existingItem = cartItems.firstWhere(
-        (item) => item.title == event.item.title,
-        orElse: () => CartItem(
-          imageUrl: event.item.imageUrl,
-          title: event.item.title,
-          price: event.item.price,
-          quantity: 0,
-        ),
-      );
+  void _removeItemFromCart(RemoveItemFromCart event, Emitter<CartState> emit) {
+    if (state is CartSuccess) {
+      final List<CartItem> updatedItems =
+          List.from((state as CartSuccess).items);
+      final index = updatedItems.indexWhere((item) => item.id == event.item.id);
 
-      if (existingItem.quantity > 1) {
-        existingItem.quantity--;
-      } else {
-        cartItems.removeWhere((item) => item.title == event.item.title);
+      if (index >= 0) {
+        final currentQuantity = updatedItems[index].quantity;
+        if (currentQuantity > 1) {
+          updatedItems[index] = updatedItems[index].copyWith(
+            quantity: currentQuantity - 1,
+          );
+        } else {
+          updatedItems.removeAt(index); // Remove if quantity is 1
+        }
       }
 
-      emit(CartSuccess(items: List.from(cartItems))); // Emit updated cart list
-    });
+      emit(CartSuccess(items: updatedItems));
+    }
   }
 }

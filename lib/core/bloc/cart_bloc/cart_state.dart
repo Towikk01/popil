@@ -29,19 +29,33 @@ class CartFailure extends CartState {
   List<Object> get props => [errorMessage];
 }
 
+// ignore: must_be_immutable
 class CartItem {
+  final String id;
   final String imageUrl;
   final String title;
   final String price;
-  int quantity;
+  final int quantity;
 
   CartItem({
+    required this.id,
     required this.imageUrl,
     required this.title,
     required this.price,
     this.quantity = 1,
   });
+
+  CartItem copyWith({int? quantity}) {
+    return CartItem(
+      id: id,
+      imageUrl: imageUrl,
+      title: title,
+      price: price,
+      quantity: quantity ?? this.quantity,
+    );
+  }
 }
+
 
 // class CartCheckoutSuccess extends CartState {
 //   CartCheckoutSuccess();

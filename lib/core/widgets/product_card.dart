@@ -17,129 +17,110 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String uniqueId = title;
 
+    return BlocBuilder<CartBloc, CartState>(
+      builder: (context, state) {
+        int quantity = 0;
+        if (state is CartSuccess) {
+          final item = state.items.firstWhere(
+            (item) => item.id == uniqueId,
+            orElse: () => CartItem(
+              id: uniqueId,
+              imageUrl: imageUrl,
+              title: title,
+              price: price,
+              quantity: 0,
+            ),
+          );
+          quantity = item.quantity;
+        }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border.all(color: AppColors.orange, width: 1),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 5,
-            offset: Offset(0, 2),
+        return Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            border: Border.all(color: AppColors.orange, width: 1),
+            borderRadius: BorderRadius.circular(10),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: Image.network(imageUrl, fit: BoxFit.cover),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Column(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  price.trim(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: AppColors.orange,
-                  ),
-                ),
-              ],
-            ),
-            Expanded(child: Container()),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    final cartItem = CartItem(
-                      imageUrl: imageUrl,
-                      title: title,
-                      price: price,
-                    );
-                    context.read<CartBloc>().add(RemoveItemFromCart(cartItem));
-                    print('Remove button tapped'); // Debugging print
-                    // Remove item
-                  },
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '-',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+              const SizedBox(
+                height: 8,
+              ),
+              Text(
+                title,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                price.trim(),
+                style: const TextStyle(color: AppColors.orange),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      final cartItem = CartItem(
+                        id: uniqueId,
+                        imageUrl: imageUrl,
+                        title: title,
+                        price: price,
+                      );
+                      context
+                          .read<CartBloc>()
+                          .add(RemoveItemFromCart(cartItem));
+                    },
+                    child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                      ),
-                    ),
+                        child: const Icon(Icons.remove, color: Colors.white)),
                   ),
-                ),
-                const SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    final cartItem = CartItem(
-                      imageUrl: imageUrl,
-                      title: title,
-                      price: price,
-                    );
-                    context.read<CartBloc>().add(AddItemToCart(cartItem));
-                    print('Add button tapped'); // Debugging print
-                  },
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '+',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                  Text('$quantity',
+                      style: const TextStyle(color: Colors.white)),
+                  GestureDetector(
+                    onTap: () {
+                      final cartItem = CartItem(
+                        id: uniqueId,
+                        imageUrl: imageUrl,
+                        title: title,
+                        price: price,
+                      );
+                      context.read<CartBloc>().add(AddItemToCart(cartItem));
+                    },
+                    child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                      ),
-                    ),
+                        child: const Icon(Icons.add, color: Colors.white)),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
